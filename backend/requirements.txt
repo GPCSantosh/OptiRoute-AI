@@ -4,7 +4,6 @@ annotated-doc==0.0.4
 annotated-types==0.7.0
 anyio==4.14.1
 async-timeout==5.0.1
-backports.asyncio.runner==1.2.0
 bcrypt==5.0.0
 billiard==4.2.4
 celery==5.6.3
@@ -38,7 +37,10 @@ packaging==26.2
 passlib==1.7.4
 pluggy==1.6.0
 prompt_toolkit==3.0.52
-psycopg2-binary==2.9.12
+asyncpg
+sqlalchemy>=2.0
+greenlet
+orjson
 pyasn1==0.6.3
 pycparser==3.0
 pydantic==2.13.4

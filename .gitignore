@@ -1,0 +1,59 @@
+# ==========================
+# Python
+# ==========================
+__pycache__/
+*.py[cod]
+*.so
+
+# Virtual Environments
+venv/
+.venv/
+env/
+
+# Environment Files
+.env
+.env.*
+
+# IDE
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+# Python Cache
+.pytest_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Build
+build/
+dist/
+*.egg-info/
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+
+# Docker
+postgres_data/
+redis_data/
+
+# Node
+frontend/node_modules/
+frontend/dist/
+frontend/.next/
+
+# Uploaded files
+uploads/
+
+# Temporary
+*.tmp
+*.bak
+
+# Database
+*.db
+*.sqlite3

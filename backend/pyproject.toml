@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "optiroute-ai-backend"
+version = "1.0.0"
+description = "Production-grade AI Route Optimization Backend"
+authors = [
+    {name = "Gundumalla Purna Chandra Santosh"}
+]
+requires-python = ">=3.12"
+
+[tool.black]
+line-length = 88
+
+[tool.isort]
+profile = "black"
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+
+[tool.ruff]
+line-length = 88

@@ -1,39 +1,47 @@
-from sqlalchemy import select
+from uuid import UUID
 
-from app.repositories.base import BaseRepository
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from app.vehicles.models import Vehicle
 
 
-class VehicleRepository(
-    BaseRepository[Vehicle]
-):
+class VehicleRepository:
 
-    def __init__(self, db):
-
-        super().__init__(
-            Vehicle,
-            db,
-        )
-
-    async def get_by_registration(
-        self,
-        registration: str,
-    ):
-
+    def __init__(self, db: AsyncSession):
+        self.db = db
+    async def get(self, vehicle_id: UUID):
         result = await self.db.execute(
             select(Vehicle).where(
-                Vehicle.registration_number == registration
+                Vehicle.id == vehicle_id
             )
         )
+        return result.scalar_one_or_none()
+    
+    async def get_all(self):
+        result = await self.db.execute(select(Vehicle))
+        return result.scalars().all()
 
+    async def get_by_id(self, vehicle_id: UUID):
+        result = await self.db.execute(
+            select(Vehicle).where(
+                Vehicle.id == vehicle_id
+            )
+        )
         return result.scalar_one_or_none()
 
-    async def available_vehicles(self):
+    async def create(self, vehicle: Vehicle):
+        self.db.add(vehicle)
+        await self.db.commit()
+        await self.db.refresh(vehicle)
+        return vehicle
 
-        result = await self.db.execute(
-            select(Vehicle).where(
-                Vehicle.is_available.is_(True)
-            )
-        )
+    async def update(self, vehicle: Vehicle):
+        self.db.add(vehicle)
+        await self.db.commit()
+        await self.db.refresh(vehicle)
+        return vehicle
 
-        return result.scalars().all()
+    async def delete(self, vehicle: Vehicle):
+        await self.db.delete(vehicle)
+        await self.db.commit()

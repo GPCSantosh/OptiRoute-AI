@@ -21,13 +21,12 @@ security = HTTPBearer(
 )
 
 
-def get_auth_service(
+async def get_auth_service(
     db: AsyncSession = Depends(get_db),
-) -> AuthService:
+):
+    repository = UserRepository(db)
 
-    return AuthService(
-        UserRepository(db)
-    )
+    return AuthService(repository)
 
 
 async def get_current_user(

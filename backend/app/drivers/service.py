@@ -1,45 +1,59 @@
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from app.drivers.models import Driver
 from app.drivers.repository import DriverRepository
-from app.drivers.schemas import DriverCreate
-from app.exceptions.base import ConflictException
+from app.drivers.schemas import DriverCreate, DriverUpdate
 
 
 class DriverService:
 
-    def __init__(
-        self,
-        repository: DriverRepository,
-    ):
+    def __init__(self, db: AsyncSession):
+        self.repository = DriverRepository(db)
 
-        self.repository = repository
+    async def list_drivers(self):
+        return await self.repository.get_all()
+
+    async def get_driver(self, driver_id):
+        return await self.repository.get(driver_id)
 
     async def create_driver(
         self,
         payload: DriverCreate,
     ):
-
-        existing = await self.repository.get_by_employee_id(
-            payload.employee_id
-        )
-
-        if existing:
-
-            raise ConflictException(
-                "Employee ID already exists."
-            )
-
         driver = Driver(
             **payload.model_dump()
         )
 
-        return await self.repository.create(
-            driver
+        return await self.repository.create(driver)
+
+    async def update_driver(
+        self,
+        driver_id,
+        payload: DriverUpdate,
+    ):
+        driver = await self.repository.get_by_id(driver_id)
+
+        if driver is None:
+            return None
+
+        data = payload.model_dump(
+            exclude_unset=True
         )
 
-    async def get_all_drivers(self):
+        for key, value in data.items():
+            setattr(driver, key, value)
 
-        return await self.repository.get_all()
+        return await self.repository.update(driver)
 
-    async def available_drivers(self):
+    async def delete_driver(
+        self,
+        driver_id,
+    ):
+        driver = await self.repository.get_by_id(driver_id)
 
-        return await self.repository.get_available_drivers()
+        if driver is None:
+            return False
+
+        await self.repository.delete(driver)
+
+        return True

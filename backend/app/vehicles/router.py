@@ -1,14 +1,10 @@
-from fastapi import APIRouter
-from fastapi import Depends
+from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.auth.dependencies import require_manager
 from app.db.session import get_db
-from app.users.models import User
-from app.vehicles.repository import VehicleRepository
 from app.vehicles.schemas import (
     VehicleCreate,
-    VehicleResponse,
+    VehicleUpdate,
 )
 from app.vehicles.service import VehicleService
 
@@ -18,55 +14,54 @@ router = APIRouter(
 )
 
 
-def get_vehicle_service(
+@router.get("/")
+async def list_vehicles(
     db: AsyncSession = Depends(get_db),
-) -> VehicleService:
+):
+    return await VehicleService(db).list_vehicles()
 
-    return VehicleService(
-        VehicleRepository(db)
+
+@router.get("/{vehicle_id}")
+async def get_vehicle(
+    vehicle_id,
+    db: AsyncSession = Depends(get_db),
+):
+    return await VehicleService(db).get_vehicle(
+        vehicle_id
     )
 
 
-@router.post(
-    "/",
-    response_model=VehicleResponse,
-)
+@router.post("/")
 async def create_vehicle(
     payload: VehicleCreate,
-    service: VehicleService = Depends(
-        get_vehicle_service
-    ),
-    current_user: User = Depends(
-        require_manager()
-    ),
+    db: AsyncSession = Depends(get_db),
 ):
-
-    return await service.create_vehicle(
+    return await VehicleService(db).create_vehicle(
         payload
     )
 
 
-@router.get(
-    "/",
-    response_model=list[VehicleResponse],
-)
-async def list_vehicles(
-    service: VehicleService = Depends(
-        get_vehicle_service
-    ),
+@router.put("/{vehicle_id}")
+async def update_vehicle(
+    vehicle_id,
+    payload: VehicleUpdate,
+    db: AsyncSession = Depends(get_db),
 ):
+    return await VehicleService(db).update_vehicle(
+        vehicle_id,
+        payload,
+    )
 
-    return await service.get_all()
 
-
-@router.get(
-    "/available",
-    response_model=list[VehicleResponse],
-)
-async def available(
-    service: VehicleService = Depends(
-        get_vehicle_service
-    ),
+@router.delete("/{vehicle_id}")
+async def delete_vehicle(
+    vehicle_id,
+    db: AsyncSession = Depends(get_db),
 ):
+    success = await VehicleService(db).delete_vehicle(
+        vehicle_id
+    )
 
-    return await service.available()
+    return {
+        "success": success
+    }

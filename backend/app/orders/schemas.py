@@ -9,7 +9,7 @@ from app.orders.models import (
 )
 
 
-class OrderCreate(BaseModel):
+class OrderBase(BaseModel):
 
     order_number: str
 
@@ -34,7 +34,36 @@ class OrderCreate(BaseModel):
     priority: OrderPriority = OrderPriority.MEDIUM
 
 
-class OrderResponse(BaseModel):
+class OrderCreate(OrderBase):
+    pass
+
+
+class OrderUpdate(BaseModel):
+
+    customer_name: str | None = None
+
+    customer_phone: str | None = None
+
+    pickup_address: str | None = None
+
+    delivery_address: str | None = None
+
+    pickup_latitude: float | None = None
+
+    pickup_longitude: float | None = None
+
+    delivery_latitude: float | None = None
+
+    delivery_longitude: float | None = None
+
+    package_weight: float | None = None
+
+    priority: OrderPriority | None = None
+
+    status: OrderStatus | None = None
+
+
+class OrderResponse(OrderBase):
 
     model_config = ConfigDict(
         from_attributes=True
@@ -42,18 +71,8 @@ class OrderResponse(BaseModel):
 
     id: UUID
 
-    order_number: str
-
-    customer_name: str
-
-    customer_phone: str
-
-    status: OrderStatus
-
-    priority: OrderPriority
-
-    package_weight: float
-
     estimated_distance: float
 
     estimated_time: int
+
+    status: OrderStatus

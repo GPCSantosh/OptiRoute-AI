@@ -53,7 +53,7 @@ class GraphBuilder:
 
                     road_closed=road.closed,
 
-                    road_name=road.name,
+                    road_name=road.road_name,
 
                 )
 

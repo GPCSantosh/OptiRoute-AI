@@ -1,15 +1,10 @@
-from fastapi import APIRouter
-from fastapi import Depends
-from fastapi import Query
+from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.auth.dependencies import require_manager
 from app.db.session import get_db
-from app.users.models import User
-from app.warehouses.repository import WarehouseRepository
 from app.warehouses.schemas import (
     WarehouseCreate,
-    WarehouseResponse,
+    WarehouseUpdate,
 )
 from app.warehouses.service import WarehouseService
 
@@ -19,52 +14,52 @@ router = APIRouter(
 )
 
 
-def get_service(
+@router.get("/")
+async def list_warehouses(
     db: AsyncSession = Depends(get_db),
 ):
+    return await WarehouseService(db).list_warehouses()
 
-    return WarehouseService(
-        WarehouseRepository(db)
+
+@router.get("/{warehouse_id}")
+async def get_warehouse(
+    warehouse_id,
+    db: AsyncSession = Depends(get_db),
+):
+    return await WarehouseService(db).get_warehouse(
+        warehouse_id
     )
 
 
-@router.post(
-    "/",
-    response_model=WarehouseResponse,
-)
-async def create(
+@router.post("/")
+async def create_warehouse(
     payload: WarehouseCreate,
-    service=Depends(get_service),
-    _: User = Depends(
-        require_manager()
-    ),
+    db: AsyncSession = Depends(get_db),
 ):
-
-    return await service.create(payload)
-
-
-@router.get(
-    "/",
-    response_model=list[WarehouseResponse],
-)
-async def all(
-    service=Depends(get_service),
-):
-
-    return await service.all()
-
-
-@router.get(
-    "/nearest",
-    response_model=WarehouseResponse,
-)
-async def nearest(
-    latitude: float = Query(...),
-    longitude: float = Query(...),
-    service=Depends(get_service),
-):
-
-    return await service.nearest_warehouse(
-        latitude,
-        longitude,
+    return await WarehouseService(db).create_warehouse(
+        payload
     )
+
+
+@router.put("/{warehouse_id}")
+async def update_warehouse(
+    warehouse_id,
+    payload: WarehouseUpdate,
+    db: AsyncSession = Depends(get_db),
+):
+    return await WarehouseService(db).update_warehouse(
+        warehouse_id,
+        payload,
+    )
+
+
+@router.delete("/{warehouse_id}")
+async def delete_warehouse(
+    warehouse_id,
+    db: AsyncSession = Depends(get_db),
+):
+    success = await WarehouseService(db).delete_warehouse(
+        warehouse_id
+    )
+
+    return {"success": success}

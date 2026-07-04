@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import enum
 
+from typing import TYPE_CHECKING
+from sqlalchemy.orm import relationship
 from sqlalchemy import Boolean
 from sqlalchemy import Enum
 from sqlalchemy import Float
@@ -11,7 +13,8 @@ from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
 
 from app.db.base import BaseModel
-
+from typing import TYPE_CHECKING
+from sqlalchemy.orm import relationship
 
 class DriverStatus(str, enum.Enum):
     AVAILABLE = "AVAILABLE"
@@ -99,12 +102,15 @@ class Driver(BaseModel):
         default=True,
     )
 
-    def __repr__(self):
 
-        return (
-            f"<Driver("
-            f"{self.employee_id}, "
-            f"{self.first_name} "
-            f"{self.last_name}"
-            f")>"
-        )
+    if TYPE_CHECKING:
+        from app.vehicles.models import Vehicle
+
+    vehicle = relationship(
+        "Vehicle",
+        back_populates="driver",
+        uselist=False,
+        lazy="selectin",
+    )
+
+    

@@ -1,39 +1,68 @@
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.repositories.base import BaseRepository
 from app.warehouses.models import Warehouse
 
+class WarehouseRepository:
 
-class WarehouseRepository(
-    BaseRepository[Warehouse]
-):
+    def __init__(self, db: AsyncSession):
+        self.db = db
 
-    def __init__(self, db):
+    async def get(self, entity_id):
+        result = await self.db.execute(
+            select(Warehouse).where(Warehouse.id == entity_id)
+        )
+        return result.scalar_one_or_none()
 
-        super().__init__(
-            Warehouse,
-            db,
+    async def update(self, entity):
+
+        try:
+            await self.db.commit()
+            await self.db.refresh(entity)
+            return entity
+
+        except Exception:
+            await self.db.rollback()
+            raise
+    
+    async def delete(self, warehouse):
+
+        await self.db.delete(warehouse)
+
+        await self.db.commit()
+
+    async def get_all(self):
+
+        result = await self.db.execute(
+            select(Warehouse)
         )
 
-    async def get_by_code(
-        self,
-        code: str,
-    ):
+        return result.scalars().all()
+
+    async def get_by_id(self, warehouse_id):
 
         result = await self.db.execute(
             select(Warehouse).where(
-                Warehouse.warehouse_code == code
+                Warehouse.id == warehouse_id
             )
         )
 
         return result.scalar_one_or_none()
 
-    async def active_warehouses(self):
 
-        result = await self.db.execute(
-            select(Warehouse).where(
-                Warehouse.is_active.is_(True)
-            )
-        )
+    async def create(self, warehouse):
 
-        return result.scalars().all()
+        try:
+            self.db.add(warehouse)
+
+            await self.db.commit()
+
+            await self.db.refresh(warehouse)
+
+            return warehouse
+
+        except IntegrityError:
+            await self.db.rollback()
+            raise

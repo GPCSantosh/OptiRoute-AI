@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from sqlalchemy import DateTime
 import enum
 from datetime import datetime
 
@@ -68,7 +69,9 @@ class User(BaseModel):
         default=False,
     )
 
-    last_login: Mapped[datetime | None] = mapped_column(
+
+    last_login = mapped_column(
+        DateTime(timezone=True),
         nullable=True,
     )
 

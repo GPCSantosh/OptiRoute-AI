@@ -1,108 +1,86 @@
-from math import radians
-from math import sin
-from math import cos
-from math import sqrt
-from math import atan2
-
-from app.exceptions.base import ConflictException
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.exc import IntegrityError
+from fastapi import HTTPException
 from app.warehouses.models import Warehouse
 from app.warehouses.repository import WarehouseRepository
-from app.warehouses.schemas import WarehouseCreate
+from app.warehouses.schemas import (
+    WarehouseCreate,
+    WarehouseUpdate,
+)
 
 
 class WarehouseService:
 
-    def __init__(
-        self,
-        repository: WarehouseRepository,
-    ):
+    def __init__(self, db: AsyncSession):
+        self.repository = WarehouseRepository(db)
 
-        self.repository = repository
+    async def list_warehouses(self):
+        return await self.repository.get_all()
 
-    async def create(
-        self,
-        payload: WarehouseCreate,
-    ):
+    async def get_warehouse(self, warehouse_id):
+        return await self.repository.get(warehouse_id)
 
-        warehouse = await self.repository.get_by_code(
-            payload.warehouse_code
+    # from fastapi import HTTPException
+
+    async def create_warehouse(self, warehouse: WarehouseCreate):
+
+        db_warehouse = Warehouse(
+            warehouse_code=warehouse.warehouse_code,
+            warehouse_name=warehouse.warehouse_name,
+            address=warehouse.address,
+            city=warehouse.city,
+            state=warehouse.state,
+            latitude=warehouse.latitude,
+            longitude=warehouse.longitude,
+            total_capacity=warehouse.total_capacity,
+            available_capacity=warehouse.total_capacity,
+            is_active=True,
         )
 
-        if warehouse:
+        try:
+            return await self.repository.create(db_warehouse)
 
-            raise ConflictException(
-                "Warehouse code already exists."
+        except IntegrityError:
+            raise HTTPException(
+                status_code=409,
+                detail="Warehouse code already exists."
             )
 
-        warehouse = Warehouse(
-            **payload.model_dump(),
-            available_capacity=payload.total_capacity,
+    async def update_warehouse(
+        self,
+        warehouse_id,
+        payload: WarehouseUpdate,
+    ):
+
+        warehouse = await self.repository.get(warehouse_id)
+
+        if warehouse is None:
+            raise HTTPException(
+                status_code=404,
+                detail="Warehouse not found"
+            )
+
+        data = payload.model_dump(exclude_none=True)
+
+        for key, value in data.items():
+            setattr(warehouse, key, value)
+
+        return await self.repository.update(warehouse)
+
+    async def delete_warehouse(
+        self,
+        warehouse_id,
+    ):
+
+        warehouse = await self.repository.get(
+            warehouse_id
         )
 
-        return await self.repository.create(
+        if warehouse is None:
+            return False
+
+        await self.repository.delete(
             warehouse
         )
 
-    async def all(self):
-
-        return await self.repository.get_all()
-
-    async def active(self):
-
-        return await self.repository.active_warehouses()
-
-    @staticmethod
-    def haversine(
-        lat1,
-        lon1,
-        lat2,
-        lon2,
-    ):
-
-        R = 6371
-
-        dlat = radians(lat2 - lat1)
-        dlon = radians(lon2 - lon1)
-
-        a = (
-            sin(dlat / 2) ** 2
-            + cos(radians(lat1))
-            * cos(radians(lat2))
-            * sin(dlon / 2) ** 2
-        )
-
-        c = 2 * atan2(
-            sqrt(a),
-            sqrt(1 - a),
-        )
-
-        return R * c
-
-    async def nearest_warehouse(
-        self,
-        latitude: float,
-        longitude: float,
-    ):
-
-        warehouses = await self.repository.active_warehouses()
-
-        nearest = None
-
-        minimum = float("inf")
-
-        for warehouse in warehouses:
-
-            distance = self.haversine(
-                latitude,
-                longitude,
-                warehouse.latitude,
-                warehouse.longitude,
-            )
-
-            if distance < minimum:
-
-                minimum = distance
-
-                nearest = warehouse
-
-        return nearest
+        return True

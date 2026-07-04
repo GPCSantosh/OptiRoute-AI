@@ -1,16 +1,13 @@
-from fastapi import APIRouter
-from fastapi import Depends
+from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.auth.dependencies import require_dispatcher
 from app.db.session import get_db
-from app.orders.repository import OrderRepository
 from app.orders.schemas import (
     OrderCreate,
     OrderResponse,
+    OrderUpdate,
 )
 from app.orders.service import OrderService
-from app.users.models import User
 
 router = APIRouter(
     prefix="/orders",
@@ -18,42 +15,46 @@ router = APIRouter(
 )
 
 
-def get_order_service(
+@router.get("/", response_model=list[OrderResponse])
+async def list_orders(
     db: AsyncSession = Depends(get_db),
 ):
-
-    return OrderService(
-        OrderRepository(db)
-    )
+    return await OrderService(db).list_orders()
 
 
-@router.post(
-    "/",
-    response_model=OrderResponse,
-)
-async def create(
+@router.get("/{order_id}", response_model=OrderResponse)
+async def get_order(
+    order_id,
+    db: AsyncSession = Depends(get_db),
+):
+    return await OrderService(db).get_order(order_id)
+
+
+@router.post("/", response_model=OrderResponse)
+async def create_order(
     payload: OrderCreate,
-    service: OrderService = Depends(
-        get_order_service
-    ),
-    _: User = Depends(
-        require_dispatcher()
-    ),
+    db: AsyncSession = Depends(get_db),
 ):
+    return await OrderService(db).create_order(payload)
 
-    return await service.create(
-        payload
+
+@router.put("/{order_id}", response_model=OrderResponse)
+async def update_order(
+    order_id,
+    payload: OrderUpdate,
+    db: AsyncSession = Depends(get_db),
+):
+    return await OrderService(db).update_order(
+        order_id,
+        payload,
     )
 
 
-@router.get(
-    "/",
-    response_model=list[OrderResponse],
-)
-async def list_orders(
-    service: OrderService = Depends(
-        get_order_service
-    ),
+@router.delete("/{order_id}")
+async def delete_order(
+    order_id,
+    db: AsyncSession = Depends(get_db),
 ):
+    success = await OrderService(db).delete_order(order_id)
 
-    return await service.all()
+    return {"success": success}

@@ -5,22 +5,16 @@ from pydantic import ConfigDict
 
 
 class WarehouseCreate(BaseModel):
-
     warehouse_code: str
-
     warehouse_name: str
-
     address: str
-
     city: str
-
     state: str
-
     latitude: float
-
     longitude: float
-
-    total_capacity: int
+    total_capacity: int = 10000
+    available_capacity: int | None = None
+    is_active: bool = True
 
 
 class WarehouseUpdate(BaseModel):

@@ -1,4 +1,5 @@
 from uuid import UUID
+from datetime import datetime
 
 from app.auth.jwt import JWTManager
 from app.auth.password import PasswordManager
@@ -96,7 +97,6 @@ class AuthService:
                 "Invalid email or password."
             )
 
-        user.last_login = utc_now()
 
         await self.repository.update(user)
 

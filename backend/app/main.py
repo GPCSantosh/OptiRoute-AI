@@ -24,6 +24,7 @@ from app.api.v1.analytics import router as analytics_router
 from app.api.v1.routes import router as routes_router
 from app.api.v1.simulation import router as simulation_router
 from app.api.v1.traffic import router as traffic_router
+from sqlalchemy.ext.asyncio import AsyncEngine
 
 
 @asynccontextmanager
@@ -32,6 +33,17 @@ async def lifespan(app: FastAPI):
     Application startup and shutdown.
     """
 
+    @asynccontextmanager
+    async def lifespan(app: FastAPI):
+
+        logger.info("Creating database tables...")
+
+        async with engine.begin() as conn:
+            await conn.run_sync(Base.metadata.create_all)
+
+        logger.info("Database tables created.")
+
+    # existing simulator code...
     logger.info("=" * 60)
     logger.info(f"Starting {settings.APP_NAME}")
     logger.info(f"Version : {settings.APP_VERSION}")

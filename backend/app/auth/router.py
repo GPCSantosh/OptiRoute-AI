@@ -15,7 +15,7 @@ from app.users.schemas import (
     UserLogin,
     UserResponse,
 )
-
+    
 router = APIRouter(
     prefix="/auth",
     tags=["Authentication"],

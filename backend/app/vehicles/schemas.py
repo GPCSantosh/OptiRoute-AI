@@ -34,11 +34,33 @@ class VehicleCreate(BaseModel):
 
 class VehicleUpdate(BaseModel):
 
+    registration_number: str | None = None
+
+    vehicle_name: str | None = None
+
+    manufacturer: str | None = None
+
+    model: str | None = None
+
+    capacity_kg: float | None = None
+
+    fuel_capacity: float | None = None
+
     current_fuel: float | None = None
+
+    mileage: float | None = None
+
+    max_speed: int | None = None
+
+    fuel_type: FuelType | None = None
 
     status: VehicleStatus | None = None
 
     is_available: bool | None = None
+
+    current_latitude: float | None = None
+
+    current_longitude: float | None = None
 
 
 class VehicleResponse(BaseModel):

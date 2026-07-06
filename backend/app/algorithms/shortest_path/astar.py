@@ -1,52 +1,95 @@
 from __future__ import annotations
 
+import math
 import time
 from math import inf
 
 from app.algorithms.graph.graph import Graph
 from app.algorithms.graph.priority_queue import PriorityQueue
-from app.algorithms.graph.utils import haversine
 
 
 class AStar:
     """
     A* Shortest Path Algorithm
 
-    Time Complexity:
-        Worst: O((V + E) log V)
-        Best: Much faster than Dijkstra
-
-    Space Complexity:
-        O(V)
+    Improvements
+    -----------------------
+    ✓ Safe node validation
+    ✓ No KeyError
+    ✓ Handles missing coordinates
+    ✓ Ignores closed roads
+    ✓ Returns friendly errors
     """
 
-    def __init__(
-        self,
-        graph: Graph,
-    ):
+    def __init__(self, graph: Graph):
         self.graph = graph
 
     def heuristic(
         self,
-        current: str,
+        source: str,
         destination: str,
     ) -> float:
 
-        current_node = self.graph.get_node(current)
+        source = source.strip()
+        destination = destination.strip()
+
+        source_node = self.graph.get_node(source)
         destination_node = self.graph.get_node(destination)
 
-        return haversine(
-            current_node.latitude,
-            current_node.longitude,
-            destination_node.latitude,
-            destination_node.longitude,
+        if source_node is None or destination_node is None:
+            return 0
+
+        # Missing coordinates
+        if (
+            source_node.latitude == 0
+            and source_node.longitude == 0
+        ):
+            return 0
+
+        if (
+            destination_node.latitude == 0
+            and destination_node.longitude == 0
+        ):
+            return 0
+
+        return math.sqrt(
+            (source_node.latitude - destination_node.latitude) ** 2
+            +
+            (source_node.longitude - destination_node.longitude) ** 2
         )
 
     def shortest_path(
         self,
         source: str,
         destination: str,
-    ) -> dict:
+    ):
+
+        source = source.strip()
+        destination = destination.strip()
+
+        if source not in self.graph.nodes:
+
+            return {
+                "algorithm": "A*",
+                "distance": 0,
+                "path": [],
+                "visited_nodes": 0,
+                "expanded_nodes": 0,
+                "execution_time_ms": 0,
+                "message": f"Source '{source}' not found.",
+            }
+
+        if destination not in self.graph.nodes:
+
+            return {
+                "algorithm": "A*",
+                "distance": 0,
+                "path": [],
+                "visited_nodes": 0,
+                "expanded_nodes": 0,
+                "execution_time_ms": 0,
+                "message": f"Destination '{destination}' not found.",
+            }
 
         start = time.perf_counter()
 
@@ -99,43 +142,76 @@ class AStar:
                 if edge.road_closed:
                     continue
 
+                neighbor = edge.destination.strip()
+
+                if neighbor not in g_score:
+                    continue
+
                 tentative_g = (
                     g_score[current]
-                    + edge.distance * edge.traffic_factor
+                    + (
+                        float(edge.distance)
+                        * float(edge.traffic_factor)
+                    )
                 )
 
-                if tentative_g < g_score[edge.destination]:
+                if tentative_g < g_score[neighbor]:
 
-                    previous[edge.destination] = current
+                    previous[neighbor] = current
 
-                    g_score[edge.destination] = tentative_g
+                    g_score[neighbor] = tentative_g
 
-                    f_score[edge.destination] = (
+                    f_score[neighbor] = (
                         tentative_g
                         + self.heuristic(
-                            edge.destination,
+                            neighbor,
                             destination,
                         )
                     )
 
                     pq.push(
-                        f_score[edge.destination],
-                        edge.destination,
+                        f_score[neighbor],
+                        neighbor,
                     )
 
         execution_time = (
             time.perf_counter() - start
         ) * 1000
 
-        path = self._reconstruct_path(
-            previous,
-            source,
-            destination,
-        )
+        if (
+            destination != source
+            and destination not in previous
+        ):
+
+            return {
+                "algorithm": "A*",
+                "distance": 0,
+                "path": [],
+                "visited_nodes": len(visited),
+                "expanded_nodes": expanded_nodes,
+                "execution_time_ms": round(
+                    execution_time,
+                    4,
+                ),
+                "message": "No route found.",
+            }
+
+        path = [destination]
+
+        while path[-1] != source:
+
+            path.append(
+                previous[path[-1]]
+            )
+
+        path.reverse()
 
         return {
             "algorithm": "A*",
-            "distance": g_score[destination],
+            "distance": round(
+                g_score[destination],
+                2,
+            ),
             "path": path,
             "visited_nodes": len(visited),
             "expanded_nodes": expanded_nodes,
@@ -144,27 +220,3 @@ class AStar:
                 4,
             ),
         }
-
-    def _reconstruct_path(
-        self,
-        previous: dict,
-        source: str,
-        destination: str,
-    ):
-
-        if (
-            destination != source
-            and destination not in previous
-        ):
-            return []
-
-        path = [destination]
-
-        while path[-1] != source:
-            path.append(
-                previous[path[-1]]
-            )
-
-        path.reverse()
-
-        return path

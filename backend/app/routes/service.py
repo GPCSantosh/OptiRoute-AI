@@ -23,6 +23,16 @@ class RouteService:
         warehouses = await self.warehouse_repository.get_all()
         roads = await self.road_repository.get_all()
 
+        warehouses = await self.warehouse_repository.get_all()
+        roads = await self.road_repository.get_all()
+
+        print("\nWAREHOUSES FROM DB")
+        for w in warehouses:
+            print(w.city)
+
+        print("\nROADS FROM DB")
+        for r in roads:
+            print(r.source, "->", r.destination)
         # Build graph
         graph = GraphBuilder.build(
             warehouses,

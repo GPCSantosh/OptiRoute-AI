@@ -1,10 +1,12 @@
-interface Props {
+type Props = {
 
     title: string;
 
     value: string | number;
 
-}
+    color: string;
+
+};
 
 export default function DashboardCard({
 
@@ -12,23 +14,33 @@ export default function DashboardCard({
 
     value,
 
+    color,
+
 }: Props) {
 
     return (
 
-        <div className="bg-white rounded-xl shadow p-5">
+        <div
 
-            <h2 className="text-gray-500">
+            style={{
 
-                {title}
+                background: color,
 
-            </h2>
+                padding: 20,
 
-            <h1 className="text-3xl font-bold">
+                borderRadius: 12,
 
-                {value}
+                color: "white",
 
-            </h1>
+                minWidth: 220,
+
+            }}
+
+        >
+
+            <h3>{title}</h3>
+
+            <h1>{value}</h1>
 
         </div>
 

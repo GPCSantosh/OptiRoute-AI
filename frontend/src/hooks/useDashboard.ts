@@ -1,27 +1,31 @@
-import { useVehicles } from "./useVehicles";
-import { useOrders } from "./useOrders";
-import { useWarehouses } from "./useWarehouses";
+import { useEffect, useState } from "react";
+import { getDashboard } from "../api/dashboard";
 
-export function useDashboard() {
+export default function useDashboard() {
+    const [data, setData] = useState<any>(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<any>(null);
 
-    const vehicles = useVehicles();
+    useEffect(() => {
+        async function load() {
+            try {
+                const result = await getDashboard();
+                console.log("Dashboard API:", result);
+                setData(result);
+            } catch (err) {
+                console.error(err);
+                setError(err);
+            } finally {
+                setLoading(false);
+            }
+        }
 
-    const orders = useOrders();
-
-    const warehouses = useWarehouses();
+        load();
+    }, []);
 
     return {
-
-        vehicles,
-
-        orders,
-
-        warehouses,
-
-        loading:
-            vehicles.isLoading ||
-            orders.isLoading ||
-            warehouses.isLoading,
-
+        data,
+        loading,
+        error,
     };
 }

@@ -1,21 +1,44 @@
-export default function VehicleToolbar() {
+type Props = {
+    onAdd: () => void;
+};
+
+export default function VehicleToolbar({
+    onAdd,
+}: Props) {
 
     return (
 
-        <div className="flex justify-between items-center mb-6">
+        <div
+            style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                marginBottom: 20,
+            }}
+        >
 
-            <h1 className="text-3xl font-bold">
-
+            <h2
+                style={{
+                    margin: 0,
+                    color: "#1e293b",
+                }}
+            >
                 Vehicles
-
-            </h1>
+            </h2>
 
             <button
-                className="bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700"
+                onClick={onAdd}
+                style={{
+                    background: "#2563eb",
+                    color: "white",
+                    border: "none",
+                    padding: "10px 18px",
+                    borderRadius: 8,
+                    cursor: "pointer",
+                    fontWeight: 600,
+                }}
             >
-
                 + Add Vehicle
-
             </button>
 
         </div>

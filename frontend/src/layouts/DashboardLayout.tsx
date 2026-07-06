@@ -1,34 +1,41 @@
-import { ReactNode } from "react";
-import Sidebar from "../components/Sidebar";
-import Navbar from "../components/Navbar";
+import React from "react";
+import { Outlet } from "react-router-dom";
 
-interface Props {
-    children: ReactNode;
-}
+import Sidebar from "../components/layout/Sidebar";
 
-export default function DashboardLayout({
-    children,
-}: Props) {
+import Navbar from "../components/layout/Navbar";
+
+export default function DashboardLayout() {
 
     return (
 
-        <div className="flex min-h-screen bg-gray-100">
+        <>
 
             <Sidebar />
 
-            <div className="flex-1">
+            <div
+                style={{
+                    marginLeft:260,
+                    minHeight:"100vh",
+                    background:"#f3f4f6"
+                }}
+            >
 
                 <Navbar />
 
-                <main className="p-6">
+                <div
+                    style={{
+                        padding:30
+                    }}
+                >
 
-                    {children}
+                    <Outlet />
 
-                </main>
+                </div>
 
             </div>
 
-        </div>
+        </>
 
     );
 

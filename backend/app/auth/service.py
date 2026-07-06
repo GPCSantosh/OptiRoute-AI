@@ -1,3 +1,4 @@
+from app.users.models import User, UserRole  # adjust the import if your enum is elsewhere
 from uuid import UUID
 from datetime import datetime
 
@@ -59,14 +60,16 @@ class AuthService:
                 "Username already exists."
             )
 
+
         user = User(
             first_name=payload.first_name,
             last_name=payload.last_name,
             username=payload.username,
             email=payload.email,
-            password_hash=PasswordManager.hash(
-                payload.password
-            ),
+            password_hash=PasswordManager.hash(payload.password),
+            role=UserRole.ADMIN,
+            is_active=True,
+            is_verified=True,
         )
 
         return await self.repository.create_user(user)
@@ -79,6 +82,16 @@ class AuthService:
         self,
         payload: UserLogin,
     ) -> Token:
+        print("LOGIN EMAIL:", payload.email)
+
+        user = await self.repository.get_by_email(
+            payload.email
+        )
+
+        print("USER:", user)
+
+        if user:
+            print("HASH:", user.password_hash)
 
         user = await self.repository.get_by_email(
             payload.email
@@ -98,13 +111,21 @@ class AuthService:
             )
 
 
+        user.last_login = utc_now()
+
         await self.repository.update(user)
+
+        role = (
+            user.role.value
+            if user.role is not None
+            else "ADMIN"
+        )
 
         access_token = JWTManager.create_access_token(
             str(user.id),
             user.email,
             user.username,
-            user.role.value,
+            role,
         )
 
         refresh_token = JWTManager.create_refresh_token(

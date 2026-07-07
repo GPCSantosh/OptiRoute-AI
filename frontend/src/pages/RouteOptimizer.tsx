@@ -1,16 +1,9 @@
-import { useEffect, useState } from "react";
+import GoogleMapComponent from "../components/GoogleMap";
 
 import RouteOptimizerToolbar from "../components/routes/RouteOptimizerToolbar";
 import RouteResultCard from "../components/routes/RouteResultCard";
 import RoutePathTable from "../components/routes/RoutePathTable";
 import RouteStatistics from "../components/routes/RouteStatistics";
-import RouteMap from "../components/routes/RouteMap";
-
-import useRoutes from "../hooks/useRoutes";
-
-import { getWarehouses } from "../api/warehouses";
-
-import GoogleMapComponent from "../components/GoogleMap";
 
 export default function RouteOptimizer() {
     return (
@@ -19,9 +12,32 @@ export default function RouteOptimizer() {
                 padding: 20,
             }}
         >
-            <h2>Route Optimizer</h2>
+            <h2
+                style={{
+                    marginBottom: 20,
+                }}
+            >
+                🚚 Route Optimizer
+            </h2>
 
-            <GoogleMapComponent />
+            {/* Toolbar */}
+
+            <RouteOptimizerToolbar />
+
+            <div
+                style={{
+                    marginTop: 25,
+                    marginBottom: 25,
+                }}
+            >
+                <GoogleMapComponent />
+            </div>
+
+            <RouteResultCard />
+
+            <RouteStatistics />
+
+            <RoutePathTable />
         </div>
     );
 }

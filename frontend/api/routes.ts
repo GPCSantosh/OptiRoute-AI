@@ -6,18 +6,12 @@ const authConfig = () => ({
     },
 });
 
-export async function optimizeRoute(payload: {
-    source: string;
-    destination: string;
-    algorithm: string;
-}) {
-
+export async function optimizeRoute(data: any) {
     const response = await axios.post(
         "/routes/optimize",
-        payload,
+        data,
         authConfig()
     );
 
     return response.data;
-
 }

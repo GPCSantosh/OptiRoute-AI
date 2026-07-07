@@ -24,10 +24,16 @@ const Login = () => {
             );
 
             navigate("/dashboard");
-        } catch (err) {
-            console.error(err);
+        } catch (err: any) {
+            console.log(err);
 
-            alert("Invalid email or password");
+            console.log(err.response);
+
+            console.log(err.response?.data);
+
+            alert(
+                JSON.stringify(err.response?.data || err.message)
+            );
         }
     };
 

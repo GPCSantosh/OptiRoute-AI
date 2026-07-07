@@ -15,7 +15,6 @@ START_TIME = datetime.now(timezone.utc)
     "/",
     methods=["GET", "HEAD"],
     status_code=status.HTTP_200_OK,
-    summary="Application Health Check",
 )
 async def health_check():
     """
@@ -35,11 +34,9 @@ async def health_check():
     }
 
 
-@router.get(
+@router.api_route(
     "/live",
     methods=["GET", "HEAD"],
-    status_code=status.HTTP_200_OK,
-    summary="Liveness Probe",
 )
 async def liveness():
     """
@@ -52,12 +49,9 @@ async def liveness():
         "alive": True
     }
 
-
-@router.get(
+@router.api_route(
     "/ready",
     methods=["GET", "HEAD"],
-    status_code=status.HTTP_200_OK,
-    summary="Readiness Probe",
 )
 async def readiness():
     """

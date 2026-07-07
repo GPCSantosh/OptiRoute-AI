@@ -11,8 +11,9 @@ router = APIRouter(prefix="/health", tags=["Health"])
 START_TIME = datetime.now(timezone.utc)
 
 
-@router.get(
+@router.api_route(
     "/",
+    methods=["GET", "HEAD"],
     status_code=status.HTTP_200_OK,
     summary="Application Health Check",
 )
@@ -36,6 +37,8 @@ async def health_check():
 
 @router.get(
     "/live",
+    methods=["GET", "HEAD"],
+    status_code=status.HTTP_200_OK,
     summary="Liveness Probe",
 )
 async def liveness():
@@ -52,6 +55,8 @@ async def liveness():
 
 @router.get(
     "/ready",
+    methods=["GET", "HEAD"],
+    status_code=status.HTTP_200_OK,
     summary="Readiness Probe",
 )
 async def readiness():

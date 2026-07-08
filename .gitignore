@@ -20,7 +20,10 @@ env/
 
 # Logs
 *.log
-
+node_modules
+dist
+.env
+.vscode
 # Python Cache
 .pytest_cache/
 .mypy_cache/

@@ -6,6 +6,10 @@ import {
 } from "@react-google-maps/api";
 
 import { getWarehouses } from "../api/warehouses";
+console.log(
+    "Google Maps API Key:",
+    import.meta.env.VITE_GOOGLE_MAPS_API_KEY
+);
 
 const containerStyle = {
     width: "100%",
@@ -52,32 +56,22 @@ export default function GoogleMapComponent() {
         >
 
             <GoogleMap
-
                 mapContainerStyle={containerStyle}
-
                 center={center}
-
                 zoom={13}
-
+                onLoad={() => {
+                    console.log("Google Map Loaded");
+                }}
             >
-
                 {warehouses.map((warehouse) => (
-
                     <Marker
-
                         key={warehouse.id}
-
                         position={{
                             lat: warehouse.latitude,
                             lng: warehouse.longitude,
                         }}
-
-                        title={warehouse.warehouse_name}
-
                     />
-
                 ))}
-
             </GoogleMap>
 
         </LoadScript>

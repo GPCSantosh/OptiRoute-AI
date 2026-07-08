@@ -1,81 +1,57 @@
+import { GoogleMap, Marker, useJsApiLoader } from "@react-google-maps/api";
 import { useEffect, useState } from "react";
-import {
-    GoogleMap,
-    LoadScript,
-    Marker,
-} from "@react-google-maps/api";
-
 import { getWarehouses } from "../api/warehouses";
-console.log(
-    "Google Maps API Key:",
-    import.meta.env.VITE_GOOGLE_MAPS_API_KEY
-);
 
 const containerStyle = {
-    width: "100%",
-    height: "650px",
+  width: "100%",
+  height: "650px",
 };
 
 const center = {
-    lat: 17.728,
-    lng: 83.304,
+  lat: 17.728,
+  lng: 83.304,
 };
 
 export default function GoogleMapComponent() {
+  const [warehouses, setWarehouses] = useState<any[]>([]);
 
-    const [warehouses, setWarehouses] = useState<any[]>([]);
+  const { isLoaded } = useJsApiLoader({
+    id: "google-map-script",
+    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
+  });
 
-    useEffect(() => {
+  useEffect(() => {
+    async function load() {
+      try {
+        const data = await getWarehouses();
+        console.log("Warehouses:", data);
+        setWarehouses(data);
+      } catch (err) {
+        console.error(err);
+      }
+    }
 
-        async function load() {
+    load();
+  }, []);
 
-            try {
+  if (!isLoaded) return <h2>Loading Google Maps...</h2>;
 
-                const data = await getWarehouses();
-
-                setWarehouses(data);
-
-            } catch (err) {
-
-                console.error(err);
-
-            }
-
-        }
-
-        load();
-
-    }, []);
-
-    return (
-
-        <LoadScript
-            googleMapsApiKey={
-                import.meta.env.VITE_GOOGLE_MAPS_API_KEY
-            }
-        >
-
-            <GoogleMap
-                mapContainerStyle={containerStyle}
-                center={center}
-                zoom={13}
-                onLoad={() => {
-                    console.log("Google Map Loaded");
-                }}
-            >
-                {warehouses.map((warehouse) => (
-                    <Marker
-                        key={warehouse.id}
-                        position={{
-                            lat: warehouse.latitude,
-                            lng: warehouse.longitude,
-                        }}
-                    />
-                ))}
-            </GoogleMap>
-
-        </LoadScript>
-
-    );
-
+  return (
+    <GoogleMap
+      mapContainerStyle={containerStyle}
+      center={center}
+      zoom={12}
+    >
+      {warehouses.map((warehouse) => (
+        <Marker
+          key={warehouse.id}
+          position={{
+            lat: Number(warehouse.latitude),
+            lng: Number(warehouse.longitude),
+          }}
+          title={warehouse.warehouse_name}
+        />
+      ))}
+    </GoogleMap>
+  );
 }

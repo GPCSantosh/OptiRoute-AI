@@ -10,34 +10,14 @@ export default function RouteOptimizer() {
         <div
             style={{
                 padding: 20,
+                background: "white",
+                color: "black",
+                minHeight: "100vh",
             }}
         >
-            <h2
-                style={{
-                    marginBottom: 20,
-                }}
-            >
-                🚚 Route Optimizer
-            </h2>
+            <h1>Route Optimizer Loaded</h1>
 
-            {/* Toolbar */}
-
-            <RouteOptimizerToolbar />
-
-            <div
-                style={{
-                    marginTop: 25,
-                    marginBottom: 25,
-                }}
-            >
-                <GoogleMapComponent />
-            </div>
-
-            <RouteResultCard />
-
-            <RouteStatistics />
-
-            <RoutePathTable />
+            <p>If you can read this, React is rendering.</p>
         </div>
     );
 }

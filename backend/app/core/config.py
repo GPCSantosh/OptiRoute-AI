@@ -23,8 +23,8 @@ class Settings(BaseSettings):
 
     APP_NAME: str = "OptiRoute AI"
     APP_VERSION: str = "1.0.0"
-    DEBUG: bool = True
-    ENVIRONMENT: str = "development"
+    DEBUG: bool = False
+    ENVIRONMENT: str = "production"
 
     API_V1_PREFIX: str = "/api/v1"
 

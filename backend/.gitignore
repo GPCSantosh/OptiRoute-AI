@@ -1,27 +1,44 @@
+# Virtual Environment
 venv/
+.venv/
 
+# Python
 __pycache__/
+*.py[cod]
+*$py.class
 
-*.pyc
-
+# Environment
 .env
+.env.*
 
+# IDE
 .idea/
-
 .vscode/
 
+# Testing
 .pytest_cache/
-
 .coverage
-
 htmlcov/
 
-dist/
-
+# Build
 build/
-
+dist/
 *.egg-info/
 
+# Type Checking
 .mypy_cache/
 
+# OS
 .DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+
+# Alembic
+alembic/__pycache__/
+
+# Local SQLite (if ever used)
+*.db
+*.sqlite3

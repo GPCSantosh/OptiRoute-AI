@@ -57,9 +57,9 @@ class Settings(BaseSettings):
     # Supabase
     # -------------------------------------------------
 
-    SUPABASE_URL: str
-    SUPABASE_ANON_KEY: str
-    SUPABASE_SERVICE_ROLE_KEY: str
+    SUPABASE_URL: str = ""
+    SUPABASE_ANON_KEY: str = "" 
+    SUPABASE_SERVICE_ROLE_KEY: str = ""
 
     # -------------------------------------------------
     # Redis

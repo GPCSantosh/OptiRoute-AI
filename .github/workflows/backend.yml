@@ -52,6 +52,8 @@ jobs:
           --health-timeout=5s
 
           --health-retries=5
+          
+          --shm-size=256mb
 
       redis:
 
@@ -86,7 +88,7 @@ jobs:
 
         run: |
 
-          python -m compileall app
+          python -m compile all app
 
       - name: Run Tests
 

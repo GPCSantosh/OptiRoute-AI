@@ -29,21 +29,13 @@ from sqlalchemy.ext.asyncio import AsyncEngine
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """
-    Application startup and shutdown.
-    """
+    logger.info("Creating database tables...")
 
-    @asynccontextmanager
-    async def lifespan(app: FastAPI):
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
 
-        logger.info("Creating database tables...")
+    logger.info("Database tables created.")
 
-        async with engine.begin() as conn:
-            await conn.run_sync(Base.metadata.create_all)
-
-        logger.info("Database tables created.")
-
-    # existing simulator code...
     logger.info("=" * 60)
     logger.info(f"Starting {settings.APP_NAME}")
     logger.info(f"Version : {settings.APP_VERSION}")
@@ -52,40 +44,24 @@ async def lifespan(app: FastAPI):
     )
     logger.info("=" * 60)
 
-    # Future startup tasks:
-    # await create_db()
-    # await create_admin()
-    # await redis_connect()
-    vehicle_simulator.add_vehicle(
-    1,
-    17.728,
-    83.304,
-    )
-
-    vehicle_simulator.add_vehicle(
-        2,
-        17.730,
-        83.310,
-    )
+    vehicle_simulator.add_vehicle(1, 17.728, 83.304)
+    vehicle_simulator.add_vehicle(2, 17.730, 83.310)
 
     traffic_simulator.add_road(1)
     traffic_simulator.add_road(2)
     traffic_simulator.add_road(3)
 
-    vehicle_task = asyncio.create_task(
-        vehicle_simulator.run()
-    )
-
-    traffic_task = asyncio.create_task(
-        traffic_simulator.run()
-    )
+    vehicle_task = asyncio.create_task(vehicle_simulator.run())
+    traffic_task = asyncio.create_task(traffic_simulator.run())
 
     yield
+
+    vehicle_task.cancel()
+    traffic_task.cancel()
 
     logger.info("=" * 60)
     logger.info("Stopping OptiRoute AI Backend")
     logger.info("=" * 60)
-
 
 app = FastAPI(
     title=settings.APP_NAME,
